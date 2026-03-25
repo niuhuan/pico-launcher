@@ -52,17 +52,17 @@ DisplaySettingsBottomSheetView::DisplaySettingsBottomSheetView(
     DisplaySettingsViewModel* viewModel, const MaterialColorScheme* materialColorScheme,
     const IFontRepository* fontRepository)
     : _viewModel(viewModel)
-    , _titleLabel(128, 16, 25, fontRepository->GetFont(FontType::Medium11))
+    , _titleLabel(220, 16, 40, fontRepository->GetFont(FontType::Medium11))
     , _layoutLabel(64, 16, 25, fontRepository->GetFont(FontType::Regular10))
     , _sortingLabel(64, 16, 25, fontRepository->GetFont(FontType::Regular10))
     , _materialColorScheme(materialColorScheme)
     // , _filtersLabel(64, 16, 25, fontRepository->GetFont(FontType::Regular10))
 {
-    _titleLabel.SetText(u"Display Settings");
+    _titleLabel.SetText(u"Pico Launcher (repack by niuhuan)");
     AddChildTail(&_titleLabel);
-    _layoutLabel.SetText(u"Layout");
+    _layoutLabel.SetText(u"布局");
     AddChildTail(&_layoutLabel);
-    _sortingLabel.SetText(u"Sorting");
+    _sortingLabel.SetText(u"排序");
     AddChildTail(&_sortingLabel);
     // _filtersLabel.SetText(u"Filters");
     // AddChildTail(&_filtersLabel);
