@@ -9,17 +9,80 @@
 #include "themes/IFontRepository.h"
 #include "MaterialFileIcon.h"
 
+namespace {
+
+static bool nextUtf8CodePoint(const char*& text, char16_t& codePoint)
+{
+    const unsigned char* src = reinterpret_cast<const unsigned char*>(text);
+    if (*src == 0)
+        return false;
+
+    if ((src[0] & 0x80) == 0)
+    {
+        codePoint = src[0];
+        text += 1;
+        return true;
+    }
+    if ((src[0] & 0xE0) == 0xC0 && src[1] != 0 && (src[1] & 0xC0) == 0x80)
+    {
+        codePoint = ((src[0] & 0x1F) << 6) | (src[1] & 0x3F);
+        text += 2;
+        return true;
+    }
+    if ((src[0] & 0xF0) == 0xE0 && src[1] != 0 && src[2] != 0 &&
+        (src[1] & 0xC0) == 0x80 && (src[2] & 0xC0) == 0x80)
+    {
+        codePoint = ((src[0] & 0x0F) << 12) | ((src[1] & 0x3F) << 6) | (src[2] & 0x3F);
+        text += 3;
+        return true;
+    }
+
+    codePoint = '?';
+    text += 1;
+    return true;
+}
+
+static bool isAsciiAlphaNum(char16_t c)
+{
+    return (c >= u'0' && c <= u'9') ||
+        (c >= u'A' && c <= u'Z') ||
+        (c >= u'a' && c <= u'z');
+}
+
+}
+
 MaterialFileIcon::MaterialFileIcon(const TCHAR* name, const MaterialColorScheme* materialColorScheme,
     const IFontRepository* fontRepository)
     : _materialColorScheme(materialColorScheme), _fontRepository(fontRepository)
 {
-    int i;
-    for (i = 0; i < 3; i++)
+    const char* text = name;
+    char16_t first = 0;
+    if (!nextUtf8CodePoint(text, first))
     {
-        TCHAR c = name[i];
-        if (c == 0)
+        _displayName[0] = 0;
+        return;
+    }
+
+    _displayName[0] = first;
+    if (!isAsciiAlphaNum(first))
+    {
+        _displayName[1] = 0;
+        return;
+    }
+
+    int i = 1;
+    while (i < 3)
+    {
+        char16_t c = 0;
+        const char* prev = text;
+        if (!nextUtf8CodePoint(text, c))
             break;
-        _displayName[i] = c;
+        if (!isAsciiAlphaNum(c))
+        {
+            text = prev;
+            break;
+        }
+        _displayName[i++] = c;
     }
     _displayName[i] = 0;
 }
